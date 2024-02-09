@@ -1,42 +1,71 @@
-MDBoxLayout:
+BoxLayout:
     orientation: "vertical"
     spacing: "10dp"
-    padding: "10dp"
+    padding: "16dp"
 
-    MDTextField:
-        id: driver_address
-        hint_text: "Driver Address"
-        multiline: False
+    MDLabel:
+        text: "Welcome to GeoLogix Transportation Service"
+        theme_text_color: "Custom"
+        text_color: 0, 0, 0, 1  # Black color
 
-    MDTextField:
-        id: timestamp
-        hint_text: "Timestamp"
-        input_filter: "int"
-        multiline: False
+    BoxLayout:
+        orientation: "horizontal"
+        spacing: "10dp"
 
-    MDTextField:
-        id: latitude
-        hint_text: "Latitude"
-        input_filter: "int"
-        multiline: False
+        MDTextField:
+            id: driver_address
+            hint_text: "Driver Address"
+            helper_text: "Enter the driver's Ethereum address"
+            helper_text_mode: "on_focus"
+            multiline: False
 
-    MDTextField:
-        id: longitude
-        hint_text: "Longitude"
-        input_filter: "int"
-        multiline: False
+        MDTextField:
+            id: timestamp
+            hint_text: "Timestamp"
+            helper_text: "Enter the timestamp"
+            helper_text_mode: "on_focus"
+            input_filter: "int"
+            multiline: False
 
-    MDTextField:
-        id: expected_latitude
-        hint_text: "Expected Latitude"
-        input_filter: "int"
-        multiline: False
+    BoxLayout:
+        orientation: "horizontal"
+        spacing: "10dp"
 
-    MDTextField:
-        id: expected_longitude
-        hint_text: "Expected Longitude"
-        input_filter: "int"
-        multiline: False
+        MDTextField:
+            id: latitude
+            hint_text: "Latitude"
+            helper_text: "Enter the latitude"
+            helper_text_mode: "on_focus"
+            input_filter: "int"
+            multiline: False
+
+        MDTextField:
+            id: longitude
+            hint_text: "Longitude"
+            helper_text: "Enter the longitude"
+            helper_text_mode: "on_focus"
+            input_filter: "int"
+            multiline: False
+
+    BoxLayout:
+        orientation: "horizontal"
+        spacing: "10dp"
+
+        MDTextField:
+            id: expected_latitude
+            hint_text: "Expected Lat."
+            helper_text: "Enter the expected latitude"
+            helper_text_mode: "on_focus"
+            input_filter: "int"
+            multiline: False
+
+        MDTextField:
+            id: expected_longitude
+            hint_text: "Expected Long."
+            helper_text: "Enter the expected longitude"
+            helper_text_mode: "on_focus"
+            input_filter: "int"
+            multiline: False
 
     MDRaisedButton:
         text: "Interact with Smart Contract"
@@ -44,4 +73,6 @@ MDBoxLayout:
 
     MDLabel:
         id: result_label
-        text: "Result: "
+        text: "Result:"
+
+    Widget:  # Spacer

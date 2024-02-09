@@ -1,0 +1,47 @@
+MDBoxLayout:
+    orientation: "vertical"
+    spacing: "10dp"
+    padding: "10dp"
+
+    MDTextField:
+        id: driver_address
+        hint_text: "Driver Address"
+        multiline: False
+
+    MDTextField:
+        id: timestamp
+        hint_text: "Timestamp"
+        input_filter: "int"
+        multiline: False
+
+    MDTextField:
+        id: latitude
+        hint_text: "Latitude"
+        input_filter: "int"
+        multiline: False
+
+    MDTextField:
+        id: longitude
+        hint_text: "Longitude"
+        input_filter: "int"
+        multiline: False
+
+    MDTextField:
+        id: expected_latitude
+        hint_text: "Expected Latitude"
+        input_filter: "int"
+        multiline: False
+
+    MDTextField:
+        id: expected_longitude
+        hint_text: "Expected Longitude"
+        input_filter: "int"
+        multiline: False
+
+    MDRaisedButton:
+        text: "Interact with Smart Contract"
+        on_press: app.interact_with_contract()
+
+    MDLabel:
+        id: result_label
+        text: "Result: "

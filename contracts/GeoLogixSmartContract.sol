@@ -4,10 +4,9 @@ pragma solidity ^0.8.0;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-
-contract GeoLogixSmartContract is ERC20, Ownable {
-    uint256 public constant SALARY_AMOUNT = 3 ether;
-    uint256 public constant REWARD_AMOUNT = 2 ether;
+contract GeoLogixSmartContract is ERC20, Ownable{
+    uint256 public constant SALARY_AMOUNT = 0.1 ether;
+    uint256 public constant REWARD_AMOUNT = 0.05 ether;
 
     enum DriverPerformance { Excellent, Good, Average, BelowAverage, NotPerformed }
 
@@ -16,9 +15,9 @@ contract GeoLogixSmartContract is ERC20, Ownable {
     event SalaryReleased(address indexed driver, uint256 amount);
     event RewardReleased(address indexed driver, uint256 amount);
     event PenaltyApplied(address indexed driver, uint256 amount);
+    event FundsSent(address indexed sender, address indexed receiver, uint256 amount);
 
     constructor() ERC20("GeoLogixToken", "GLT") {
-        _mint(owner(), SALARY_AMOUNT + REWARD_AMOUNT);
     }
 
     function evaluateDriver(
@@ -30,25 +29,31 @@ contract GeoLogixSmartContract is ERC20, Ownable {
         int256 expectedLongitude
     ) external onlyOwner {
         DriverPerformance performance = calculatePerformance(timestamp, latitude, longitude, expectedLatitude, expectedLongitude);
-
+        _releaseFunds(driver, SALARY_AMOUNT + REWARD_AMOUNT);
         if (performance == DriverPerformance.Excellent) {
             _releaseFunds(driver, SALARY_AMOUNT + REWARD_AMOUNT);
         } else if (performance == DriverPerformance.Good) {
             _releaseFunds(driver, SALARY_AMOUNT);
             _returnFunds(owner(), REWARD_AMOUNT);
         } else if (performance == DriverPerformance.Average) {
-            _releaseFunds(driver, SALARY_AMOUNT - 1 ether);
-            _returnFunds(owner(), 1 ether);
-            emit PenaltyApplied(driver, 1 ether);
+            _releaseFunds(driver, SALARY_AMOUNT - 0.05 ether);
+            _returnFunds(owner(), 0.05 ether);
+            emit PenaltyApplied(driver, 0.05 ether);
         } else if (performance == DriverPerformance.BelowAverage) {
-            _releaseFunds(driver, SALARY_AMOUNT - 2 ether);
-            _returnFunds(owner(), 2 ether);
-            emit PenaltyApplied(driver, 2 ether);
+            _releaseFunds(driver, SALARY_AMOUNT - 0.07 ether);
+            _returnFunds(owner(), 0.07 ether);
+            emit PenaltyApplied(driver, 0.07 ether);
         } else {
             emit PenaltyApplied(driver, SALARY_AMOUNT + REWARD_AMOUNT);
         }
-
         driverPerformances[driver] = performance;
+
+    }
+
+    function sendFunds(address driver, uint256 amount) external onlyOwner {
+        require(amount <= 0.05 ether, "Amount should be 0.05 ether or less");
+        _transfer(owner(), driver, amount);
+        emit FundsSent(owner(), driver, amount);
     }
 
     function calculatePerformance(
@@ -58,10 +63,7 @@ contract GeoLogixSmartContract is ERC20, Ownable {
         int256 expectedLatitude,
         int256 expectedLongitude
     ) internal pure returns (DriverPerformance) {
-        // Placeholder for the actual performance calculation logic based on timestamp and geolocation
-        // Adjust this logic based on your specific requirements and data structures
-
-        // Check closeness percentage based on latitude and longitude
+       
         uint256 closeness = calculateCloseness(latitude, longitude, expectedLatitude, expectedLongitude);
 
         if (closeness > 90) {
@@ -83,12 +85,9 @@ contract GeoLogixSmartContract is ERC20, Ownable {
         int256 expectedLatitude,
         int256 expectedLongitude
     ) internal pure returns (uint256) {
-        // Placeholder for the actual calculation of closeness percentage based on geolocation
-        // Adjust this logic based on your specific requirements and data structures
-
-        // Example: Simplified distance-based closeness calculation
+        
         uint256 distance = calculateDistance(latitude, longitude, expectedLatitude, expectedLongitude);
-        uint256 maxDistance = 100; // Adjust this value based on your requirements
+        uint256 maxDistance = 100; 
         return (maxDistance - distance) * 100 / maxDistance;
     }
 
@@ -98,9 +97,7 @@ contract GeoLogixSmartContract is ERC20, Ownable {
         int256 lat2,
         int256 lon2
     ) internal pure returns (uint256) {
-        // Placeholder for the actual distance calculation based on latitude and longitude
-        // Adjust this logic based on your specific requirements and data structures
-        // Example: Simplified calculation using Euclidean distance formula
+        
         int256 latDiff = lat1 - lat2;
         int256 lonDiff = lon1 - lon2;
         return uint256((latDiff * latDiff + lonDiff * lonDiff));
@@ -119,4 +116,4 @@ contract GeoLogixSmartContract is ERC20, Ownable {
             emit RewardReleased(to, amount);
         }
     }
-}
+}}

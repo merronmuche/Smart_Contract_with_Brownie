@@ -1,0 +1,19 @@
+networks:
+  default: development
+  development:
+    host: http://127.0.0.1:8545
+    chainid: 1337
+    accounts:
+      mnemonic: whisper charge episode endorse dinosaur action addict claim notice fence annual opera
+  rinkeby:
+    host: https://rinkeby.infura.io/v3/<your_infura_project_id_here>
+    chainid: 4
+    accounts:
+      mnemonic: whisper charge episode endorse dinosaur action addict claim notice fence annual opera
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.4.1
+
+compiler:
+  solc:
+    remappings:
+      - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.4.1'

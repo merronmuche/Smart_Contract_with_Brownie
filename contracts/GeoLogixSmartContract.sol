@@ -20,16 +20,15 @@ contract GeoLogixSmartContract is ERC20, Ownable {
     }
     function evaluateDriver(
         int256 currentLatitude,
-        int256 currentLongitude,
-        uint256 timestamp
+        int256 currentLongitude
     ) external onlyOwner {
-        require(timestamp == 10 minutes || timestamp == 20 minutes, "Invalid timestamp");
+        // require(timestamp == 20 minutes, "Invalid timestamp");
         // Check if the driver is at the checkpoint
-        // we have the two checkpoints (50,50) in the middle & (100,100) at the destination
-        if (((uint256(50-currentLatitude))<=5 && (uint256(50-currentLongitude))<=5) || ((currentLatitude-50)<=40 && (currentLongitude-50)<=40)|| ((uint256(100-currentLatitude))<=5 && (uint256(100-currentLongitude))<=5 )) {
+        // we have the one checkpoints (100,100) 
+        if (((uint256(100-currentLatitude))<=5 && (uint256(100-currentLongitude))<=5 )) {
             payable(driver).transfer(SALARY_AMOUNT + REWARD_AMOUNT);
         }
-        else if (((uint256(50-currentLatitude))<=10 && (uint256(50-currentLongitude))<=10) || ((currentLatitude-50)<=40 && (currentLongitude-50)<=40)|| (uint256(100-currentLatitude)<=10 && uint256(100-currentLongitude)<=10)) {
+        else if ((uint256(100-currentLatitude)<=10 && uint256(100-currentLongitude)<=10)) {
             payable(driver).transfer(SALARY_AMOUNT);
         }
         else {

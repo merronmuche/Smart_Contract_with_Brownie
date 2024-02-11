@@ -1,119 +1,39 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
+pragma solidity ^0.8.19;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract GeoLogixSmartContract is ERC20, Ownable{
-    uint256 public constant SALARY_AMOUNT = 0.1 ether;
+contract GeoLogixSmartContract is ERC20, Ownable {
+    address public employer;
+    address public driver;
+    uint256 public constant SALARY_AMOUNT = 0.15 ether;
     uint256 public constant REWARD_AMOUNT = 0.05 ether;
-
+    uint256 public constant PENALIZE_AMOUNT = 0.05 ether;
     enum DriverPerformance { Excellent, Good, Average, BelowAverage, NotPerformed }
-
     mapping(address => DriverPerformance) public driverPerformances;
-
     event SalaryReleased(address indexed driver, uint256 amount);
     event RewardReleased(address indexed driver, uint256 amount);
     event PenaltyApplied(address indexed driver, uint256 amount);
-    event FundsSent(address indexed sender, address indexed receiver, uint256 amount);
-
-    constructor() ERC20("GeoLogixToken", "GLT") {
+    constructor()Ownable()ERC20("GeoLogixToken", "GLT") {
+        employer = payable(0x126bF9bCd4D69BDb0726e00e76299F95b03a11b2);
+        driver = payable(0x0C6342C070Ca9A5699B5F7bfaEE5B5953d0C851c);
     }
-
     function evaluateDriver(
-        address driver,
-        uint256 timestamp,
-        int256 latitude,
-        int256 longitude,
-        int256 expectedLatitude,
-        int256 expectedLongitude
+        int256 currentLatitude,
+        int256 currentLongitude,
+        uint256 timestamp
     ) external onlyOwner {
-        DriverPerformance performance = calculatePerformance(timestamp, latitude, longitude, expectedLatitude, expectedLongitude);
-        _releaseFunds(driver, SALARY_AMOUNT + REWARD_AMOUNT);
-        if (performance == DriverPerformance.Excellent) {
-            _releaseFunds(driver, SALARY_AMOUNT + REWARD_AMOUNT);
-        } else if (performance == DriverPerformance.Good) {
-            _releaseFunds(driver, SALARY_AMOUNT);
-            _returnFunds(owner(), REWARD_AMOUNT);
-        } else if (performance == DriverPerformance.Average) {
-            _releaseFunds(driver, SALARY_AMOUNT - 0.05 ether);
-            _returnFunds(owner(), 0.05 ether);
-            emit PenaltyApplied(driver, 0.05 ether);
-        } else if (performance == DriverPerformance.BelowAverage) {
-            _releaseFunds(driver, SALARY_AMOUNT - 0.07 ether);
-            _returnFunds(owner(), 0.07 ether);
-            emit PenaltyApplied(driver, 0.07 ether);
-        } else {
-            emit PenaltyApplied(driver, SALARY_AMOUNT + REWARD_AMOUNT);
+        require(timestamp == 10 minutes || timestamp == 20 minutes, "Invalid timestamp");
+        // Check if the driver is at the checkpoint
+        // we have the two checkpoints (50,50) in the middle & (100,100) at the destination
+        if (((uint256(50-currentLatitude))<=5 && (uint256(50-currentLongitude))<=5) || ((currentLatitude-50)<=40 && (currentLongitude-50)<=40)|| ((uint256(100-currentLatitude))<=5 && (uint256(100-currentLongitude))<=5 )) {
+            payable(driver).transfer(SALARY_AMOUNT + REWARD_AMOUNT);
         }
-        driverPerformances[driver] = performance;
-
-    }
-
-    function sendFunds(address driver, uint256 amount) external onlyOwner {
-        require(amount <= 0.05 ether, "Amount should be 0.05 ether or less");
-        _transfer(owner(), driver, amount);
-        emit FundsSent(owner(), driver, amount);
-    }
-
-    function calculatePerformance(
-        uint256 timestamp,
-        int256 latitude,
-        int256 longitude,
-        int256 expectedLatitude,
-        int256 expectedLongitude
-    ) internal pure returns (DriverPerformance) {
-       
-        uint256 closeness = calculateCloseness(latitude, longitude, expectedLatitude, expectedLongitude);
-
-        if (closeness > 90) {
-            return DriverPerformance.Excellent;
-        } else if (closeness > 75) {
-            return DriverPerformance.Good;
-        } else if (closeness > 50) {
-            return DriverPerformance.Average;
-        } else if (closeness > 25) {
-            return DriverPerformance.BelowAverage;
-        } else {
-            return DriverPerformance.NotPerformed;
+        else if (((uint256(50-currentLatitude))<=10 && (uint256(50-currentLongitude))<=10) || ((currentLatitude-50)<=40 && (currentLongitude-50)<=40)|| (uint256(100-currentLatitude)<=10 && uint256(100-currentLongitude)<=10)) {
+            payable(driver).transfer(SALARY_AMOUNT);
+        }
+        else {
+            payable(driver).transfer(SALARY_AMOUNT-PENALIZE_AMOUNT);
         }
     }
-
-    function calculateCloseness(
-        int256 latitude,
-        int256 longitude,
-        int256 expectedLatitude,
-        int256 expectedLongitude
-    ) internal pure returns (uint256) {
-        
-        uint256 distance = calculateDistance(latitude, longitude, expectedLatitude, expectedLongitude);
-        uint256 maxDistance = 100; 
-        return (maxDistance - distance) * 100 / maxDistance;
-    }
-
-    function calculateDistance(
-        int256 lat1,
-        int256 lon1,
-        int256 lat2,
-        int256 lon2
-    ) internal pure returns (uint256) {
-        
-        int256 latDiff = lat1 - lat2;
-        int256 lonDiff = lon1 - lon2;
-        return uint256((latDiff * latDiff + lonDiff * lonDiff));
-    }
-
-    function _releaseFunds(address to, uint256 amount) internal {
-        _transfer(owner(), to, amount);
-        if (amount > 0) {
-            emit SalaryReleased(to, amount);
-        }
-    }
-
-    function _returnFunds(address to, uint256 amount) internal {
-        _transfer(owner(), to, amount);
-        if (amount > 0) {
-            emit RewardReleased(to, amount);
-        }
-    }
-}}
+}

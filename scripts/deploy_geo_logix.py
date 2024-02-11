@@ -3,7 +3,6 @@ from brownie import  GeoLogixSmartContract, accounts
 
 
 def main():
-    # You can customize the deployment account here
     deployer = accounts[0]
 
     # Deploy the GeoLogixSmartContract
